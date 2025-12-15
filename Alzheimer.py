@@ -34,23 +34,22 @@ uploaded_file = st.file_uploader(
     type=["jpg", "jpeg", "png"]
 )
 
-if uploaded_file is not None:
+if uploaded_file:
     img = Image.open(uploaded_file).convert("RGB")
     st.image(img, caption="Uploaded Image", use_column_width=True)
 
-    # Preprocessing
-    img = img.resize((224, 224))  # change if your model uses different size
+    img = img.resize((224, 224))  # match training size
     img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
     if st.button("🔍 Predict"):
-        predictions = model.predict(img_array)
-        class_index = np.argmax(predictions)
-        confidence = np.max(predictions) * 100
+        preds = model.predict(img_array)
+        idx = np.argmax(preds)
+        confidence = preds[0][idx] * 100
 
-        st.success(f"🧠 Prediction: **{class_names[class_index]}**")
+        st.success(f"🧠 Prediction: **{class_names[idx]}**")
         st.info(f"Confidence: **{confidence:.2f}%**")
 
-        st.subheader("📊 Prediction Probabilities")
+        st.subheader("📊 Class Probabilities")
         for i, label in enumerate(class_names):
-            st.write(f"{label}: {predictions[0][i]*100:.2f}%")
+            st.write(f"{label}: {preds[0][i]*100:.2f}%")
