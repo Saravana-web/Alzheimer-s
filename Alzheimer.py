@@ -10,7 +10,6 @@ st.set_page_config(
 )
 
 st.title("🧠 Alzheimer's Disease Detection")
-st.write("Upload a brain MRI image to predict Alzheimer's stage")
 
 @st.cache_resource
 def load_alzheimer_model():
@@ -25,14 +24,10 @@ class_names = [
     "Very Mild Demented"
 ]
 
-uploaded_file = st.file_uploader(
-    "Upload Brain MRI Image",
-    type=["jpg", "jpeg", "png"]
-)
-
-if uploaded_file is not None:
+uploaded_file = st.file_uploader("Upload a brain MRI image", type=["jpg", "jpeg", "png"])
+if uploaded_file:
     img = Image.open(uploaded_file).convert("RGB")
-    st.image(img, use_column_width=True)
+    st.image(img, caption="Uploaded Image", use_column_width=True)
 
     img = img.resize((224, 224))
     img_array = np.array(img) / 255.0
@@ -41,7 +36,11 @@ if uploaded_file is not None:
     if st.button("🔍 Predict"):
         preds = model.predict(img_array)
         idx = np.argmax(preds)
-        conf = preds[0][idx] * 100
+        confidence = preds[0][idx] * 100
 
         st.success(f"🧠 Prediction: **{class_names[idx]}**")
-        st.info(f"Confidence: **{conf:.2f}%**")
+        st.info(f"Confidence: **{confidence:.2f}%**")
+
+        st.subheader("📊 Class Probabilities")
+        for i, label in enumerate(class_names):
+            st.write(f"{label}: {preds[0][i]*100:.2f}%")
