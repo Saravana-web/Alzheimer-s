@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
+from keras.models import load_model
 from PIL import Image
 
 # ---------------- PAGE CONFIG ----------------
@@ -40,9 +39,8 @@ if uploaded_file is not None:
     st.image(img, caption="Uploaded Image", use_column_width=True)
 
     # ---------------- PREPROCESS IMAGE ----------------
-    img = img.resize((224, 224))  # ⚠️ change if your model uses a different size
-    img_array = image.img_to_array(img)
-    img_array = img_array / 255.0
+    img = img.resize((224, 224))  # change if model trained with different size
+    img_array = np.array(img) / 255.0
     img_array = np.expand_dims(img_array, axis=0)
 
     # ---------------- PREDICTION ----------------
@@ -54,7 +52,6 @@ if uploaded_file is not None:
         st.success(f"🧠 Prediction: **{class_names[predicted_class]}**")
         st.info(f"Confidence: **{confidence:.2f}%**")
 
-        # ---------------- PROBABILITY DISPLAY ----------------
         st.subheader("📊 Prediction Probabilities")
         for i, label in enumerate(class_names):
             st.write(f"{label}: {predictions[0][i]*100:.2f}%")
